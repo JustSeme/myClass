@@ -1,0 +1,10 @@
+{
+    "version": 2,
+    "name": "myClass",
+    "builds": [
+        { "src": "dist/app.js", "use": "@vercel/node" }
+    ],
+    "routes": [
+        { "src": "/(.*)", "dest": "dist/app.js" }
+    ]
+}
