@@ -1,4 +1,6 @@
 import express, { Request, Response } from "express"
+import { lessonsRouter } from "./api/routers/lessons-router"
+import cookieParser from "cookie-parser"
 
 export const settings = {
     PORT: process.env.PORT || 4000,
@@ -26,10 +28,8 @@ app.use(jsonBodyMiddleware)
 app.set('trust proxy', true)
 
 
-app.delete('/api/testing/all-data', async (req: Request, res: Response) => {
+app.delete('/api/prepare-db', async (req: Request, res: Response) => {
     res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
 })
 
-app.get(`/`, async (req: Request, res: Response) => {
-    res.send(`Hello World!`)
-})
+app.get(`/`, lessonsRouter)

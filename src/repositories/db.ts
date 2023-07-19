@@ -1,6 +1,6 @@
 import { Client } from 'pg'
 
-
+export let client: Client
 export async function runDB() {
     const PG_PASSWORD = process.env.PG_PASSWORD
     const PG_USER_NAME = process.env.PG_USER_NAME
@@ -8,7 +8,7 @@ export async function runDB() {
     const DB_PORT = Number(process.env.DB_PORT)
     const DB_NAME = process.env.DB_NAME
 
-    let client
+    client
     try {
         client = new Client({
             port: DB_PORT,
