@@ -1,10 +1,17 @@
 import { Router } from "express";
 import { container } from "../../composition-root";
 import { LessonsController } from "../controllers/lessons-controller";
+import { dateQueryValidator, lessonsPerPageQueryValidator, pageQueryValidator, statusQueryValidator, studentsCountQueryValidator, teacherIdsQueryValidator } from "../validators";
 
 export const lessonsRouter = Router({})
 
 const lessonsController = container.resolve<LessonsController>(LessonsController)
 
-// @ts-ignore прошу прощения за @ts-ignore, но я вообще не могу понять, почему он ругается, не хочу тратить время
-lessonsRouter.get('/', lessonsController.findLessons.bind(lessonsController))
+lessonsRouter.get('/',
+    dateQueryValidator,
+    statusQueryValidator,
+    teacherIdsQueryValidator,
+    studentsCountQueryValidator,
+    pageQueryValidator,
+    lessonsPerPageQueryValidator,
+    lessonsController.findLessons.bind(lessonsController))

@@ -1,23 +1,26 @@
 import { StudentViewModel } from "./StudentViewModel"
 import { TeacherViewModel } from "./TeacherViewModel"
+import moment from 'moment'
 
 export class LessonsViewModel {
-    constructor() {
-        this.id = 0
-        this.date = new Date()
-        this.title = ''
-        this.status = 0
-        this.visitCount = 0
-        this.students = []
-        this.teachers = []
+    constructor(
+        lesson: LessonsViewModel
+    ) {
+        this.id = lesson.id
+        this.date = moment(lesson.date).format('YYYY-MM-DD')
+        this.title = lesson.title
+        this.status = lesson.status
+        this.visitsCount = Number(lesson.visitsCount)
+        this.students = lesson.students
+        this.teachers = lesson.teachers
     }
 
 
     public id: number
-    public date: Date
+    public date: Date | string
     public title: string
     public status: LessonStatusType
-    public visitCount: number
+    public visitsCount: number
     public students: Array<StudentViewModel>
     public teachers: Array<TeacherViewModel>
 }

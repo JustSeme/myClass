@@ -3,6 +3,7 @@ import { Container } from "inversify/lib/container/container";
 import { LessonsController } from "./api/controllers/lessons-controller";
 import { LessonsService } from "./application/lessons-service";
 import { LessonsRepository } from "./infractructure/lessons-repository";
+import { LessonsQueryRepository } from "./infractructure/lessons-query-repository";
 
 export const container = new Container()
 
@@ -14,3 +15,4 @@ container.bind<LessonsService>(LessonsService).to(LessonsService)
 
 //repositories
 container.bind<LessonsRepository>(LessonsRepository).to(LessonsRepository)
+container.bind<LessonsQueryRepository>(LessonsQueryRepository).to(LessonsQueryRepository)

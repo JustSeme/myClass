@@ -1,6 +1,6 @@
 import { Request } from 'express'
 
-export type GetLessonsType = {
+export type GetLessonsQueryType = {
     date: string
     status: string
     teacherIds: string
