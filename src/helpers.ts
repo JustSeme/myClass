@@ -1,3 +1,4 @@
+import moment from "moment"
 import { GetLessonsQueryType } from "./api/models/GetLessonsQueryModel"
 
 const prepareStudentsCount = (param: string): number[] => {
@@ -91,4 +92,34 @@ type PreparedQueryStringsAndParamsType = {
     parametersArray: Array<any>
 }
 
-export const dateFormat = 'YYYY-MM-DD' 
+export const dateFormat = 'YYYY-MM-DD'
+
+export const getInsertingValuesString = (lessonsCount: number, firstDate: string, lastDate: string, days: number[], title: string): string => {
+    // Проверка на взаимоисключающие параметры
+    if (lessonsCount !== undefined && lastDate) {
+        throw new Error('The lessons Count and lastDate parameters are mutually exclusive');
+    }
+
+    const createdLessons: string[] = [];
+
+    const startDate = moment(firstDate, dateFormat);
+    const endDate = moment(startDate).add(1, 'year');
+
+    let currentLessonCount = 0;
+
+    function isAllowedDay(day: number): boolean {
+        return days.includes(day);
+    }
+
+    while (currentLessonCount < lessonsCount && currentLessonCount < 300 && startDate.isSameOrBefore(endDate)) {
+        if (isAllowedDay(startDate.day())) {
+            createdLessons.push(`('${title}', '${startDate.format(dateFormat)}')`);
+
+            currentLessonCount++;
+        }
+
+        startDate.add(1, 'day');
+    }
+
+    return createdLessons.join(', ');
+}
