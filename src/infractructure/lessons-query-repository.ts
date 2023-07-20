@@ -1,5 +1,5 @@
 import { injectable } from "inversify"
-import { client } from "../repositories/db"
+import { client } from "./db"
 import { GetLessonsQueryType } from "../request-types"
 import { LessonsViewModel } from "../application/models/LessonsViewModel"
 import { prepareParamWithCommaSeparator, prepareTeacherIds } from "../helpers"
@@ -31,8 +31,8 @@ export class LessonsQueryRepository {
         }
 
         let teacherIdsQueryString = ''
-        if (preparedTeacherIds.length) {
-            teacherIdsQueryString = `WHERE te.id IN (${teacherIds})`
+        if (preparedTeacherIds?.length) {
+            teacherIdsQueryString = `WHERE te.id IN (${preparedTeacherIds})`
         }
 
         const queryString = `

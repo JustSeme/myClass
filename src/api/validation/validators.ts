@@ -2,59 +2,69 @@ import { query } from 'express-validator'
 import moment from 'moment'
 
 export const dateQueryValidator = query('date')
+    .optional()
     .custom((dateValue: string) => {
         // date param contains two dates
         const dateValuesArray = dateValue.split(',')
 
         if (dateValuesArray.length > 2) {
-            return false
+            throw new Error('Date quantity should be lower than 2')
         }
 
+        const dateFormat = 'YYYY-MM-DD'
         dateValuesArray.forEach(date => {
-            if (!moment(date).isValid()) {
-                return false
+            if (!moment(date, dateFormat, true).isValid()) {
+                throw new Error('Date should be a date')
             }
         })
         return true
     })
-    .withMessage('Parameter date should be Date and elements quantity in this parameter should be lower then 2')
 
 export const statusQueryValidator = query('status')
-    .custom((status: string) => +status === 0 || +status === 1)
-    .withMessage('Parameter status should be equal 0 or 1')
+    .optional()
+    .custom((status: string) => {
+        if (!(+status === 0 || +status === 1)) {
+            throw new Error('Status should be a integer')
+        } else {
+            return true
+        }
+    })
 
 export const teacherIdsQueryValidator = query('teacherIds')
+    .optional()
     .custom((stringIds) => {
         const idsArray = stringIds.split(',')
 
         idsArray.forEach((id: string) => {
-            if (isNaN(+id)) {
-                return false
+
+            if (isNaN(+id) || id === '') {
+                throw new Error('Every teacherId should be a number')
             }
         });
         return true
     })
-    .withMessage('All teacherIds should be integer')
 
 export const studentsCountQueryValidator = query('studentsCount')
+    .optional()
     .custom((studentsCountString) => {
         const studentsCountArray = studentsCountString.split(',')
 
         if (studentsCountArray.length > 2) {
-            return false
+            throw new Error('StudentsCount quantity should be lower than 2')
         }
 
         studentsCountArray.forEach((studentsCount: string) => {
             if (isNaN(+studentsCount)) {
-                return false
+                throw new Error('Every studentsCount element should be a number')
             }
         })
         return true
     })
-    .withMessage('studentsCount should be a number and elements quantity in this parameter should be lower then 2')
 
 export const pageQueryValidator = query('page')
+    .optional()
     .isInt()
 
 export const lessonsPerPageQueryValidator = query('lessonsPerPage')
+    .optional()
     .isInt()

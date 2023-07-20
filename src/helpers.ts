@@ -1,5 +1,3 @@
-import { TeacherViewModel } from "./application/models/TeacherViewModel"
-
 export const prepareParamWithCommaSeparator = (param: string): number[] => {
     const parameterArray = param.split(',')
     if (parameterArray[0] === '') {
@@ -8,9 +6,15 @@ export const prepareParamWithCommaSeparator = (param: string): number[] => {
     return parameterArray.map(parameter => Number(parameter))
 }
 
-export const prepareTeacherIds = (teacherIds: string) => {
+export const prepareTeacherIds = (teacherIds: string): string | null => {
     const teacherIdsArray = teacherIds.split(',')
-    return `'${teacherIdsArray.join("', '")}'`
+    if (!teacherIdsArray[0]) {
+        return null
+    }
+
+    const resultedStr = `'${teacherIdsArray.join("', '")}'`
+
+    return resultedStr
 }
 
 export const prepareStudentCountQueryString = (studentsCountInputString: string) => {
