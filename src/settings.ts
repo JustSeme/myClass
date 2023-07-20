@@ -1,6 +1,5 @@
 import express, { Request, Response } from "express"
 import { lessonsRouter } from "./api/routers/lessons-router"
-import cookieParser from "cookie-parser"
 
 export const settings = {
     PORT: process.env.PORT || 4000,
@@ -32,4 +31,4 @@ app.delete('/api/prepare-db', async (req: Request, res: Response) => {
     res.sendStatus(HTTP_STATUSES.NO_CONTENT_204)
 })
 
-app.get(`/`, lessonsRouter)
+app.use(lessonsRouter)

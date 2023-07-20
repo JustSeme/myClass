@@ -3,6 +3,7 @@ import { container } from "../../composition-root";
 import { LessonsController } from "../controllers/lessons-controller";
 import { dateQueryValidator, lessonsPerPageQueryValidator, pageQueryValidator, statusQueryValidator, studentsCountQueryValidator, teacherIdsQueryValidator } from "../validation/query-validators";
 import { inputValidationMiddleware } from "../validation/input-validation-middleware";
+import { daysBodyValidator, firstDateBodyValidator, lastDateBodyValidator, lessonsCountBodyValidator, teacherIdsBodyValidator, titleBodyValidator } from "../validation/body-validators";
 
 export const lessonsRouter = Router({})
 
@@ -19,6 +20,12 @@ lessonsRouter.get('/',
     lessonsController.findLessons.bind(lessonsController))
 
 lessonsRouter.post('/lessons',
+    titleBodyValidator,
+    daysBodyValidator,
+    teacherIdsBodyValidator,
+    firstDateBodyValidator,
+    lastDateBodyValidator,
+    lessonsCountBodyValidator,
     inputValidationMiddleware,
     lessonsController.createLessons.bind(lessonsController)
 )

@@ -90,3 +90,5 @@ type PreparedQueryStringsAndParamsType = {
     studentsCountQueryString: string
     parametersArray: Array<any>
 }
+
+export const dateFormat = 'YYYY-MM-DD' 

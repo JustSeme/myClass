@@ -1,5 +1,6 @@
 import { query } from 'express-validator'
 import moment from 'moment'
+import { dateFormat } from '../../helpers'
 
 export const dateQueryValidator = query('date')
     .optional()
@@ -11,7 +12,6 @@ export const dateQueryValidator = query('date')
             throw new Error('Date quantity should be lower than 2')
         }
 
-        const dateFormat = 'YYYY-MM-DD'
         dateValuesArray.forEach(date => {
             if (!moment(date, dateFormat, true).isValid()) {
                 throw new Error('Date should be a date')
