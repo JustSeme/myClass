@@ -6,7 +6,7 @@ export type GetLessonsQueryType = {
     teacherIds: string
     studentsCount: string
     page: string
-    lessonPerPage: string
+    lessonsPerPage: string
 }
 
 export type RequestWithQuery<T> = Request<{}, {}, {}, T>
