@@ -2,14 +2,14 @@ import { injectable } from "inversify"
 import { client } from "../repositories/db"
 import { GetLessonsQueryType } from "../request-types"
 import { LessonsViewModel } from "../application/models/LessonsViewModel"
-import { prepareStudentsCountParam } from "../helpers"
+import { filterByStatus, filterByStudentsCount, prepareStudentsCountParam } from "../helpers"
 
 @injectable()
 export class LessonsQueryRepository {
 
     async findLessons(lessonsQueryParams: GetLessonsQueryType): Promise<LessonsViewModel[]> {
         let {
-            date = null, status = null, teacherIds = '', studentsCount = '', page = 1, lessonsPerPage = 5
+            date = null, status = -1, teacherIds = '', studentsCount = '', page = 1, lessonsPerPage = 5
         } = lessonsQueryParams
 
         const datesArray = date?.split(',')
@@ -53,18 +53,17 @@ export class LessonsQueryRepository {
 
         // Пытался фильтровать элементы в sql, но не вышло достать данные из подзапроса
         lessonsData.rows.forEach((lesson) => {
-            lesson.students = lesson.students ? lesson.students : []
+            const displayedLesson = new LessonsViewModel(lesson)
+
+            if (!filterByStatus(+status, displayedLesson.status)) {
+                return
+            }
 
             // Фильтрую по параметрам studentsCount
-            if (preparedStudentCount.length === 2) {
-                if (lesson.students.length < preparedStudentCount[0] || lesson.students.length > preparedStudentCount[1]) {
-                    return
-                }
-            } else if (preparedStudentCount.length === 1) {
-                if (lesson.students.length !== preparedStudentCount[0]) {
-                    return
-                }
+            if (!filterByStudentsCount(preparedStudentCount, displayedLesson.students.length)) {
+                return
             }
+
             resultedArray.push(new LessonsViewModel(lesson))
         }, [])
 

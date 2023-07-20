@@ -9,10 +9,10 @@ export class LessonsViewModel {
         this.id = lesson.id
         this.date = moment(lesson.date).format('YYYY-MM-DD')
         this.title = lesson.title
-        this.status = lesson.status
+        this.status = Number(lesson.status) as LessonStatusType
         this.visitsCount = Number(lesson.visitsCount)
-        this.students = lesson.students
-        this.teachers = lesson.teachers
+        this.students = lesson.students || []
+        this.teachers = lesson.teachers || []
     }
 
 
