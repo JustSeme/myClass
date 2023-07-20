@@ -1,8 +1,7 @@
 import { injectable } from "inversify";
 import { CreateLessonsInputModel } from "../api/models/CreateLessonsInputModel";
 import { client } from "./db";
-import moment from "moment";
-import { dateFormat, getInsertingValuesString } from "../helpers";
+import { getInsertLessonTeachersValuesString, getInsertLessonsValuesString } from "../helpers";
 
 @injectable()
 export class LessonsRepository {
@@ -12,19 +11,32 @@ export class LessonsRepository {
     async createLessons(lessonsInputModel: CreateLessonsInputModel): Promise<number[]> {
         const { teacherIds, title, days, firstDate, lessonsCount, lastDate } = lessonsInputModel;
 
-        const insertingValuesQueryString = getInsertingValuesString(lessonsCount, firstDate, lastDate, days, title)
+        const insertLessonsQueryString = getInsertLessonsValuesString(lessonsCount, firstDate, lastDate, days, title)
+        const insertLessonTeachersQueryString = getInsertLessonTeachersValuesString(teacherIds)
+        const preparedTeacherIds = teacherIds.join(', ')
 
         const queryString = `
-            INSERT INTO public.lessons(
-                title, date)
-                VALUES ${insertingValuesQueryString}
-                RETURNING id;
+            WITH inserted_lessons as (
+                INSERT INTO public.lessons(
+                    title, date
+                )
+                VALUES ${insertLessonsQueryString}
+                RETURNING id
+            )
+            INSERT INTO lesson_teachers (lesson_id, teacher_id)
+            SELECT id, teacher_id 
+                FROM inserted_lessons il, unnest(ARRAY[${preparedTeacherIds}]) as teacher_id
+                RETURNING il.id;
         ` // Предполагаю, что конкатенация возможна, поскольку данные высчитывались моим кодом и sql-injection невозможен
 
         const createdLessonsIds = await client.query(queryString)
 
-        const createdLessonIdsArray = createdLessonsIds.rows.map(objId => objId.id)
+        console.log(createdLessonsIds.rows);
 
-        return createdLessonIdsArray
+
+        //const createdLessonIdsArray = createdLessonsIds.rows.map(objId => objId.id)
+
+        //@ts-ignore
+        return ''
     }
 }

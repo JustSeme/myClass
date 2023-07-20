@@ -94,7 +94,7 @@ type PreparedQueryStringsAndParamsType = {
 
 export const dateFormat = 'YYYY-MM-DD'
 
-export const getInsertingValuesString = (lessonsCount: number, firstDate: string, lastDate: string, days: number[], title: string): string => {
+export const getInsertLessonsValuesString = (lessonsCount: number, firstDate: string, lastDate: string, days: number[], title: string): string => {
     // Проверка на взаимоисключающие параметры
     if (lessonsCount !== undefined && lastDate) {
         throw new Error('The lessons Count and lastDate parameters are mutually exclusive');
@@ -122,4 +122,15 @@ export const getInsertingValuesString = (lessonsCount: number, firstDate: string
     }
 
     return createdLessons.join(', ');
+}
+
+export const getInsertLessonTeachersValuesString = (teacherIds: number[]): string => {
+    const resultedArray = teacherIds.map((id) => {
+        return `
+            INSERT INTO public.lesson_teachers (lesson_id, teacher_id)
+            SELECT id, ${id} FROM lessons;
+        `
+    })
+
+    return resultedArray.join('')
 }
