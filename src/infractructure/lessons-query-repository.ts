@@ -63,4 +63,21 @@ export class LessonsQueryRepository {
 
         return lessonsData.rows.map(lesson => new LessonsViewModel(lesson))
     }
+
+    async isTeacherExists(teacherId: number): Promise<boolean> {
+        try {
+            const queryString = `
+                SELECT t.id
+                    FROM public.teachers t
+                    WHERE t.id = $1
+            `
+
+            const teacherById = await client.query(queryString, [teacherId])
+
+            return teacherById.rows.length ? true : false
+        } catch (err) {
+            console.error(err)
+            return false
+        }
+    }
 }

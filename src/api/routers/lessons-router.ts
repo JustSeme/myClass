@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { container } from "../../composition-root";
 import { LessonsController } from "../controllers/lessons-controller";
-import { dateQueryValidator, lessonsPerPageQueryValidator, pageQueryValidator, statusQueryValidator, studentsCountQueryValidator, teacherIdsQueryValidator } from "../validation/query-validators";
+import { dateQueryValidator, lessonsPerPageQueryValidator, pageQueryValidator, statusQueryValidator, studentsCountQueryValidator, teacherIdsQueryValidator } from "../validation/find-lessons-validators";
 import { inputValidationMiddleware } from "../validation/input-validation-middleware";
-import { daysBodyValidator, firstDateBodyValidator, lastDateBodyValidator, lessonsCountBodyValidator, teacherIdsBodyValidator, titleBodyValidator } from "../validation/body-validators";
+import { daysBodyValidator, firstDateBodyValidator, lastDateBodyValidator, lessonsCountBodyValidator, teacherIdsBodyValidator, titleBodyValidator } from "../validation/create-lessons-validators";
 
 export const lessonsRouter = Router({})
 
