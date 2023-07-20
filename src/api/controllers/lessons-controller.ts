@@ -3,8 +3,10 @@ import { Response, Request } from "express"
 import { HTTP_STATUSES } from "../../settings"
 import { LessonsService } from "../../application/lessons-service"
 import { LessonsQueryRepository } from "../../infractructure/lessons-query-repository"
-import { GetLessonsQueryType, RequestWithQuery } from "../../request-types"
+import { RequestWithBody, RequestWithQuery } from "../../request-types"
 import { LessonsViewModel } from "../../application/models/LessonsViewModel"
+import { GetLessonsQueryType } from "../models/GetLessonsQueryModel"
+import { CreateLessonsInputModel } from "../models/CreateLessonsInputModel"
 
 @injectable()
 export class LessonsController {
@@ -16,7 +18,7 @@ export class LessonsController {
 
     async findLessons(req: RequestWithQuery<GetLessonsQueryType>, res: Response<LessonsViewModel[]>): Promise<void> {
         const findedLessons = await this.lessonsQueryRepository.findLessons(req.query)
-        if (!findedLessons) {
+        if (!findedLessons.length) {
             res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
             return
         }
@@ -28,8 +30,8 @@ export class LessonsController {
         return
     }
 
-    async createLessons(req: Request, res: Response<{ lessonIds: number[] }>): Promise<void> {
-        const lessonIds = await this.lessonsService.createLessons(req)
+    async createLessons(req: RequestWithBody<CreateLessonsInputModel>, res: Response<{ lessonIds: number[] }>): Promise<void> {
+        const lessonIds = await this.lessonsService.createLessons(req.body)
 
         if (!lessonIds.length) {
             res.sendStatus(HTTP_STATUSES.NOT_IMPLEMENTED_501)
