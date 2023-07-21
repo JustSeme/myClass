@@ -58,10 +58,16 @@ export class LessonsQueryRepository {
         LIMIT $1 OFFSET $2;
         `
 
-        // Чет не нашёл в pg как по DI инжектить сюда DataSource, поэтому просто импортнул инстанс. typeORM мне в этом плане, конечно, больше нравится
-        const lessonsData = await client.query<LessonsViewModel>(queryString, parametersArray)
+        try {
+            const lessonsData = await client.query<LessonsViewModel>(queryString, parametersArray)
 
-        return lessonsData.rows.map(lesson => new LessonsViewModel(lesson))
+            return lessonsData.rows.map(lesson => new LessonsViewModel(lesson))
+        } catch (err) {
+            console.error(err)
+            throw new Error(err as any)
+        }
+        // Чет не нашёл в pg как по DI инжектить сюда DataSource, поэтому просто импортнул инстанс. typeORM мне в этом плане, конечно, больше нравится
+
     }
 
     async isTeacherExists(teacherId: number): Promise<boolean> {

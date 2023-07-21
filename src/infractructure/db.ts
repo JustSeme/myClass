@@ -1,21 +1,21 @@
 import { Client } from 'pg'
 
 export let client: Client
+
+const PG_PASSWORD = process.env.PG_PASSWORD
+const PG_USER_NAME = process.env.PG_USER_NAME
+
+const DB_PORT = Number(process.env.DB_PORT)
+const DB_NAME = process.env.DB_NAME
+export const dbSettings = {
+    port: DB_PORT,
+    password: PG_PASSWORD,
+    user: PG_USER_NAME,
+    database: DB_NAME
+}
 export async function runDB() {
-    const PG_PASSWORD = process.env.PG_PASSWORD
-    const PG_USER_NAME = process.env.PG_USER_NAME
-
-    const DB_PORT = Number(process.env.DB_PORT)
-    const DB_NAME = process.env.DB_NAME
-
-    client
     try {
-        client = new Client({
-            port: DB_PORT,
-            password: PG_PASSWORD,
-            user: PG_USER_NAME,
-            database: DB_NAME
-        })
+        client = new Client(dbSettings)
 
         await client.connect()
 

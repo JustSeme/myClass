@@ -1,15 +1,16 @@
 import { injectable } from "inversify";
 import { CreateLessonsInputModel } from "../api/models/CreateLessonsInputModel";
-import { client } from "./db";
+import { dbSettings } from "./db";
 import { getInsertLessonsValuesString } from "../helpers";
+import { Pool, PoolClient } from "pg";
 
 @injectable()
 export class LessonsRepository {
 
-    // Тут надо бы делать транзакцию создания записи в lessons и lessons_teachers, но в pg нет транзакций,
-    // так что буду считать, что это не предусмотрено условиями задачи
     async createLessons(lessonsInputModel: CreateLessonsInputModel): Promise<number[]> {
         const { teacherIds, title, days, firstDate, lessonsCount, lastDate } = lessonsInputModel;
+
+        const pool = new Pool(dbSettings)
 
         const insertLessonsQueryString = getInsertLessonsValuesString(lessonsCount, firstDate, lastDate, days, title)
         const preparedTeacherIds = teacherIds.join(', ')
@@ -37,20 +38,31 @@ export class LessonsRepository {
             RETURNING id;
         `// Предполагаю, что конкатенация возможна, поскольку данные высчитывались моим кодом и sql-injection невозможен
 
-        const createdLessonsIds = await client.query(queryCreateLesson)
+        let createdLessonIdsArray: number[] = []
+        let client: any
+        try {
+            client = await pool.connect()
 
-        const createdLessonIdsArray = createdLessonsIds.rows.map(objId => objId.id)
+            const createdLessonsIds = await client.query(queryCreateLesson)
 
-        const lessonIdsAsValues = createdLessonIdsArray.join(', ')
+            createdLessonIdsArray = createdLessonsIds.rows.map((objId: { id: number }) => objId.id)
 
-        const queryCreateLessonTeacher = `
-        INSERT INTO lesson_teachers (lesson_id, teacher_id)
-        SELECT id, teacher_id 
-            FROM unnest(ARRAY[${lessonIdsAsValues}]) as id, unnest(ARRAY[${preparedTeacherIds}]) as teacher_id;
-        `
+            const lessonIdsAsValues = createdLessonIdsArray.join(', ')
 
-        await client.query(queryCreateLessonTeacher)
+            const queryCreateLessonTeacher = `
+            INSERT INTO lesson_teachers (lesson_id, teacher_id)
+            SELECT id, teacher_id 
+                FROM unnest(ARRAY[${lessonIdsAsValues}]) as id, unnest(ARRAY[${preparedTeacherIds}]) as teacher_id;
+            `
 
-        return createdLessonIdsArray
+            await client.query(queryCreateLessonTeacher)
+
+            return createdLessonIdsArray
+        } catch (error) {
+            console.error(error)
+            throw new Error(error as any)
+        } finally {
+            await client.release()
+        }
     }
 }
