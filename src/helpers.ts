@@ -123,14 +123,3 @@ export const getInsertLessonsValuesString = (lessonsCount: number, firstDate: st
 
     return createdLessons.join(', ');
 }
-
-export const getInsertLessonTeachersValuesString = (teacherIds: number[]): string => {
-    const resultedArray = teacherIds.map((id) => {
-        return `
-            INSERT INTO public.lesson_teachers (lesson_id, teacher_id)
-            SELECT id, ${id} FROM lessons;
-        `
-    })
-
-    return resultedArray.join('')
-}

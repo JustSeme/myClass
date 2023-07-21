@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { CreateLessonsInputModel } from "../api/models/CreateLessonsInputModel";
 import { client } from "./db";
-import { getInsertLessonTeachersValuesString, getInsertLessonsValuesString } from "../helpers";
+import { getInsertLessonsValuesString } from "../helpers";
 
 @injectable()
 export class LessonsRepository {
@@ -12,10 +12,10 @@ export class LessonsRepository {
         const { teacherIds, title, days, firstDate, lessonsCount, lastDate } = lessonsInputModel;
 
         const insertLessonsQueryString = getInsertLessonsValuesString(lessonsCount, firstDate, lastDate, days, title)
-        const insertLessonTeachersQueryString = getInsertLessonTeachersValuesString(teacherIds)
         const preparedTeacherIds = teacherIds.join(', ')
 
-        const queryString = `
+        // Сначала сделал так, но не мог достать lesson_ids, так что пришлось повторно пробежаться по массиву idшек
+        /* const queryString = `
             WITH inserted_lessons as (
                 INSERT INTO public.lessons(
                     title, date
@@ -27,16 +27,30 @@ export class LessonsRepository {
             SELECT id, teacher_id 
                 FROM inserted_lessons il, unnest(ARRAY[${preparedTeacherIds}]) as teacher_id
                 RETURNING il.id;
-        ` // Предполагаю, что конкатенация возможна, поскольку данные высчитывались моим кодом и sql-injection невозможен
+        ` */
 
-        const createdLessonsIds = await client.query(queryString)
+        const queryCreateLesson = `
+            INSERT INTO public.lessons(
+                title, date
+            )
+            VALUES ${insertLessonsQueryString}
+            RETURNING id;
+        `// Предполагаю, что конкатенация возможна, поскольку данные высчитывались моим кодом и sql-injection невозможен
 
-        console.log(createdLessonsIds.rows);
+        const createdLessonsIds = await client.query(queryCreateLesson)
 
+        const createdLessonIdsArray = createdLessonsIds.rows.map(objId => objId.id)
 
-        //const createdLessonIdsArray = createdLessonsIds.rows.map(objId => objId.id)
+        const lessonIdsAsValues = createdLessonIdsArray.join(', ')
 
-        //@ts-ignore
-        return ''
+        const queryCreateLessonTeacher = `
+        INSERT INTO lesson_teachers (lesson_id, teacher_id)
+        SELECT id, teacher_id 
+            FROM unnest(ARRAY[${lessonIdsAsValues}]) as id, unnest(ARRAY[${preparedTeacherIds}]) as teacher_id;
+        `
+
+        await client.query(queryCreateLessonTeacher)
+
+        return createdLessonIdsArray
     }
 }
