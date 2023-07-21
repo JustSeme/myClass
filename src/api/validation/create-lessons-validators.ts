@@ -22,7 +22,7 @@ export const teacherIdsBodyValidator = body('teacherIds')
             }
 
             // По хорошему бы создать teachersRepository, но заданием не предусмотрены операции с ресурсом teachers, так что ладно
-            if (!await lessonsQueryRepository.isTeacherExists(teacherIds[i])) {
+            if (!(await lessonsQueryRepository.isTeacherExists(teacherIds[i]))) {
                 throw new Error(`Teacher by id ${teacherIds[i]} does not exists`)
             }
         }
@@ -67,4 +67,4 @@ export const lastDateBodyValidator = body('lastDate')
 
 export const lessonsCountBodyValidator = body('lessonsCount')
     .optional()
-    .isInt()
+    .isInt({ min: 1, max: 300 }).withMessage('LessonsCount should be a number greater than 1 and lower then 300')
