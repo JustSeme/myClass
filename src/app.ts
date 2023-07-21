@@ -5,9 +5,10 @@ import { app, settings } from './settings'
 
 const port = settings.PORT
 
+export let server: any
 const startApp = async () => {
     await runDB()
-    app.listen(port, () => {
+    server = app.listen(port, () => {
         console.log(`MyClass app listening on port ${port}`);
     })
 }

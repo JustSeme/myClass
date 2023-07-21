@@ -3,6 +3,6 @@ export type CreateLessonsInputModel = {
     title: string
     days: number[]
     firstDate: string
-    lessonsCount: number
-    lastDate: string
+    lessonsCount?: number
+    lastDate?: string
 }

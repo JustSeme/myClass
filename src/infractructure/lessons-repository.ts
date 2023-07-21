@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import { CreateLessonsInputModel } from "../api/models/CreateLessonsInputModel";
 import { dbSettings } from "./db";
 import { getInsertLessonsValuesString } from "../helpers";
-import { Pool, PoolClient } from "pg";
+import { Pool } from "pg";
 
 @injectable()
 export class LessonsRepository {

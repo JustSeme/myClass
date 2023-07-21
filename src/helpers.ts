@@ -94,7 +94,7 @@ type PreparedQueryStringsAndParamsType = {
 
 export const dateFormat = 'YYYY-MM-DD'
 
-export const getInsertLessonsValuesString = (lessonsCount: number, firstDate: string, lastDate: string, days: number[], title: string): string => {
+export const getInsertLessonsValuesString = (lessonsCount: number | undefined, firstDate: string, lastDate: string | undefined, days: number[], title: string): string => {
     // Проверка на взаимоисключающие параметры
     if (lessonsCount !== undefined && lastDate) {
         throw new Error('The lessons Count and lastDate parameters are mutually exclusive');
@@ -103,7 +103,10 @@ export const getInsertLessonsValuesString = (lessonsCount: number, firstDate: st
     const createdLessons: string[] = [];
 
     const startDate = moment(firstDate, dateFormat);
-    const endDate = moment(startDate).add(1, 'year');
+    let endDate = moment(startDate).add(1, 'year');
+    if (lastDate) {
+        endDate = moment(lastDate)
+    }
 
     let currentLessonCount = 0;
 
@@ -111,7 +114,7 @@ export const getInsertLessonsValuesString = (lessonsCount: number, firstDate: st
         return days.includes(day);
     }
 
-    while (currentLessonCount < lessonsCount && currentLessonCount < 300 && startDate.isSameOrBefore(endDate)) {
+    while ((lessonsCount === undefined || currentLessonCount < lessonsCount) && currentLessonCount < 300 && startDate.isSameOrBefore(endDate)) {
         if (isAllowedDay(startDate.day())) {
             createdLessons.push(`('${title}', '${startDate.format(dateFormat)}')`);
 
