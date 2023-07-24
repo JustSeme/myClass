@@ -5,7 +5,6 @@ import { CreateLessonsInputModel } from '../../src/api/models/CreateLessonsInput
 import { client } from '../../src/infractructure/db'
 import { clearDB } from '../test-utils'
 import moment from 'moment'
-import { dateFormat } from '../../src/helpers'
 
 describe('create-lessons', () => {
     beforeAll(async () => {

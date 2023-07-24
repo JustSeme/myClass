@@ -10,7 +10,7 @@ export const clearDB = async () => {
     `)
 }
 
-export const prepareDBWithTestDumb = async () => {
+export const prepareDBWithTestDump = async () => {
     const insertTeachersString = `
     (1,	'Sveta'),
     (2,	'Marina'),

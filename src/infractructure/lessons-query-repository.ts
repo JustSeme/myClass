@@ -54,7 +54,7 @@ export class LessonsQueryRepository {
         ${dateQueryString}
 		GROUP BY l.id
         ${studentsCountQueryString}
-        ORDER BY l.date ASC
+        ORDER BY l.id ASC
         LIMIT $1 OFFSET $2;
         `
 
