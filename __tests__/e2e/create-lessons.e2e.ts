@@ -4,6 +4,8 @@ import { HTTP_STATUSES, app } from '../../src/settings'
 import { CreateLessonsInputModel } from '../../src/api/models/CreateLessonsInputModel'
 import { client } from '../../src/infractructure/db'
 import { clearDB } from '../test-utils'
+import moment from 'moment'
+import { dateFormat } from '../../src/helpers'
 
 describe('create-lessons', () => {
     beforeAll(async () => {
@@ -112,6 +114,13 @@ describe('create-lessons', () => {
                 field: 'title'
             }]
         })
+
+        const createOneLessonInputModelWithTwoExclusiveParameters = { ...createOneLessonInputModel, lastDate: '2023-07-25' }
+
+        await request(app)
+            .post('/lessons')
+            .send(createOneLessonInputModelWithTwoExclusiveParameters)
+            .expect(HTTP_STATUSES.NOT_IMPLEMENTED_501)
     })
 
     let lessonId1
@@ -146,19 +155,60 @@ describe('create-lessons', () => {
     })
 
     const createLessonsInputModel = {
-        days: [1],
+        days: [1, 2, 3],
         firstDate: '2023-07-21',
         lastDate: '2024-07-21',
         teacherIds: [1, 2],
         title: 'lesson Title'
     }
-    it('should create n lessons for the year ahead', async () => {
+
+    it('should create 156 lessons for the year ahead by days 1, 2, 3', async () => {
         const createdLessonIds = await request(app)
             .post('/lessons')
             .send(createLessonsInputModel)
             .expect(HTTP_STATUSES.OK_200)
 
         const { lessonIds } = createdLessonIds.body
-        expect(lessonIds.length).toEqual(52)
+        expect(lessonIds.length).toEqual(156)
+
+        const lessonsData = await client.query('SELECT * from public.lessons ORDER BY id DESC')
+
+        expect(lessonsData.rows.length).toEqual(157)
+        const lessonDays = lessonsData.rows.map(lesson => moment(lesson.date).day())
+
+        expect(lessonDays[2]).toEqual(createLessonsInputModel.days[0])
+        expect(lessonDays[1]).toEqual(createLessonsInputModel.days[1])
+        expect(lessonDays[0]).toEqual(createLessonsInputModel.days[2])
+    })
+
+    it('should create 300 lessons for a period of 1 year and lessons every day', async () => {
+        const createLessonsInputModelEveryDay = { ...createLessonsInputModel, days: [0, 1, 2, 3, 4, 5, 6] }
+
+        const createdLessonIds = await request(app)
+            .post('/lessons')
+            .send(createLessonsInputModelEveryDay)
+            .expect(HTTP_STATUSES.OK_200)
+
+        const { lessonIds } = createdLessonIds.body
+        expect(lessonIds.length).toEqual(300)
+    })
+
+    const createLessonsWithLessonsCount300 = {
+        days: [1],
+        firstDate: '2023-07-24',
+        lessonsCount: 300,
+        teacherIds: [1, 2],
+        title: 'lesson Title'
+    }
+
+    it('should create 52 lessons for a lessons count 300, check constraint - lessons can create only for a one year ahead', async () => {
+        const createdLessonIds = await request(app)
+            .post('/lessons')
+            .send(createLessonsWithLessonsCount300)
+            .expect(HTTP_STATUSES.OK_200)
+
+        const { lessonIds } = createdLessonIds.body
+
+        expect(lessonIds.length).toEqual(53)
     })
 })

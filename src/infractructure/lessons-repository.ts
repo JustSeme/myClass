@@ -12,7 +12,13 @@ export class LessonsRepository {
 
         const pool = new Pool(dbSettings)
 
-        const insertLessonsQueryString = getInsertLessonsValuesString(lessonsCount, firstDate, lastDate, days, title)
+        let insertLessonsQueryString
+        try {
+            insertLessonsQueryString = getInsertLessonsValuesString(lessonsCount, firstDate, lastDate, days, title)
+        } catch (err) {
+            throw new Error(err as any)
+        }
+
         const preparedTeacherIds = teacherIds.join(', ')
 
         // Сначала сделал так, но не мог достать lesson_ids, так что пришлось повторно пробежаться по массиву idшек

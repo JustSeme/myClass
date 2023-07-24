@@ -17,31 +17,44 @@ export class LessonsController {
 
 
     async findLessons(req: RequestWithQuery<GetLessonsQueryType>, res: Response<LessonsViewModel[]>): Promise<void> {
-        const findedLessons = await this.lessonsQueryRepository.findLessons(req.query)
-        if (!findedLessons.length) {
-            res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+        try {
+            const findedLessons = await this.lessonsQueryRepository.findLessons(req.query)
+            if (!findedLessons.length) {
+                res.sendStatus(HTTP_STATUSES.NOT_FOUND_404)
+                return
+            }
+
+            res
+                .status(HTTP_STATUSES.OK_200)
+                .send(findedLessons)
+
             return
+        } catch (error) {
+            res
+                .status(HTTP_STATUSES.NOT_IMPLEMENTED_501)
+                .send(error as any)
         }
-
-        res
-            .status(HTTP_STATUSES.OK_200)
-            .send(findedLessons)
-
-        return
     }
 
     async createLessons(req: RequestWithBody<CreateLessonsInputModel>, res: Response<{ lessonIds: number[] }>): Promise<void> {
-        const lessonIds = await this.lessonsService.createLessons(req.body)
+        try {
+            const lessonIds = await this.lessonsService.createLessons(req.body)
 
-        if (!lessonIds.length) {
-            res.sendStatus(HTTP_STATUSES.NOT_IMPLEMENTED_501)
+            if (!lessonIds.length) {
+                res.sendStatus(HTTP_STATUSES.NOT_IMPLEMENTED_501)
+                return
+            }
+
+            res.send({
+                lessonIds: lessonIds
+            })
+
+            return
+        } catch (error) {
+            res
+                .status(HTTP_STATUSES.NOT_IMPLEMENTED_501)
+                .send(error as any)
             return
         }
-
-        res.send({
-            lessonIds: lessonIds
-        })
-
-        return
     }
 }
